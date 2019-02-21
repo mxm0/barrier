@@ -753,6 +753,13 @@ OSXKeyState::getKeyMap(barrier::KeyMap& keyMap,
     return true;
 }
 
+/*
+ *
+ * TODO: Currently mapping only left modifiers. Barrier Key does not
+ *       differentiate the modifier so the way the KeyModifierMask
+ *       is passed has to be changed.
+ *
+ */
 bool
 OSXKeyState::mapBarrierHotKeyToMac(KeyID key, KeyModifierMask mask,
                 UInt32 &macVirtualKey, UInt32 &macModifierMask) const
@@ -767,21 +774,30 @@ OSXKeyState::mapBarrierHotKeyToMac(KeyID key, KeyModifierMask mask,
     // calculate modifier mask
     macModifierMask = 0;
     if ((mask & KeyModifierShift) != 0) {
-        macModifierMask |= shiftKey;
+        macModifierMask |= kCGEventFlagMaskShift
+                        |  NX_DEVICELSHIFTKEYMASK
+                        |  0x100;
     }
     if ((mask & KeyModifierControl) != 0) {
-        macModifierMask |= controlKey;
+        macModifierMask |= kCGEventFlagMaskControl
+                        |  NX_DEVICELCTLKEYMASK
+                        |  0x100;
     }
     if ((mask & KeyModifierAlt) != 0) {
-        macModifierMask |= cmdKey;
+        macModifierMask |= kCGEventFlagMaskAlternate
+                        |  NX_DEVICELALTKEYMASK
+                        |  0x100;
     }
     if ((mask & KeyModifierSuper) != 0) {
-        macModifierMask |= optionKey;
+        macModifierMask |= kCGEventFlagMaskCommand
+                        |  NX_DEVICELCMDKEYMASK
+                        |  0x100;
     }
     if ((mask & KeyModifierCapsLock) != 0) {
-        macModifierMask |= alphaLock;
+        macModifierMask |= kCGEventFlagMaskAlphaShift | 0x100;
     }
     if ((mask & KeyModifierNumLock) != 0) {
+        // Does these modifier even exist on OS X ?
         macModifierMask |= s_osxNumLock;
     }
     
